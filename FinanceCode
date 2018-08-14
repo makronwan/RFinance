@@ -97,7 +97,8 @@ if skip == 0:
         a_2008_dataframe_collection_x[i] = data_x
         a_2008_dataframe_collection[i] = data
         
-    for i in range(0,2):    ###################################     CHANGE
+    for i in range(0,2):    ###################################     CHANGE LETS SEE WHAT EXCTLY CHANGES V
+    SOMETHING ELSE CHANGED
         for m in a_2008_dataframe_collection[i].index:
             if m > 0:
                 a_2008_dataframe_collection[i].loc[m,0] = ""
@@ -232,69 +233,10 @@ print ("We are done Running")
 print("--- %s seconds ---" % (time.time() - start_time))
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #sa = (np.array([[1,2,3],[4,5,6]]))
 #sb = (np.matrix([[7,8,9],[10,11,12]]))
 
 #findx = ProductArray[1,0]
 #alistx = list(ProductArray[:,0])
 #print (alistx.index(findx))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
