@@ -97,7 +97,7 @@ if skip == 0:
         a_2008_dataframe_collection_x[i] = data_x
         a_2008_dataframe_collection[i] = data
         
-    for i in range(0,2):    ###################################     CHANGE
+    for i in range(0,2):    ###################################     CHANGE LETS SEE WHAT EXCTLY CHANGES V
         for m in a_2008_dataframe_collection[i].index:
             if m > 0:
                 a_2008_dataframe_collection[i].loc[m,0] = ""
