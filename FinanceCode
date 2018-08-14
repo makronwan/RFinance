@@ -18,176 +18,182 @@ start_time = time.time()
 
 
 print ("We started Running")
-
 skip = 0
+year = 2011
+calv_vol_days = 2 #counts from 0 and does one less, 2 will do 0 and 1
+skipexchange = 0
+exchange_array = ['NYSE','NASDAQ']
 
-if skip == 0:
-    
-    ####################################################################################################################
-    #START
-    #Get all the dates of the year
-    #Open the NASDAQ folder for that year; create a list of all the files which will contain dates; edit the dates
-    
-    year = 2011
-    directory = 'NASDAQ/NASDAQ_'+ str(year)
-    
-    sd = []
-    for files in os.walk(directory):
-        for filename in files:
-            sd.append(filename)
-    
-    df = pd.DataFrame.from_dict(sd)
-    sd = (df.loc[2,:])
-    for s_d in sd:
-        pass
-    sd = s_d
-    tradingdaysofyear = []
-    for items in sd:
-        newitem = int( (items[7:15]))
-        tradingdaysofyear.append(newitem)
-        
-    #END
-    ####################################################################################################################
-    
-    
-    
-    ####################################################################################################################
-    #START
-    #Read the NASDAQ file for said day and create the primary company list of securities
-    day_one_of_year = (tradingdaysofyear[0])
-    exchanges = ['NASDAQ']
-    for i in exchanges:
-        address = i+'/'+i+'_'+str(year)+'/'+ i +'_' + str(day_one_of_year) + '.csv'
-        data = pd.read_csv(address, sep=',', header=None)
-    
-    primary_company_list = data
-    for i in primary_company_list.index:
-        if i > 0:
-            primary_company_list.loc[i,1] = 0
-            primary_company_list.loc[i,2] = 0
-            primary_company_list.loc[i,3] = 0
-            primary_company_list.loc[i,4] = 0
-            primary_company_list.loc[i,5] = 0
-            primary_company_list.loc[i,6] = 0
+for current_exchange in exchange_array:
+    if skip == 0:
+        if skipexchange == 0:
+            ####################################################################################################################
+            #START
+            #Get all the dates of the year
+            #Open the NASDAQ folder for that year; create a list of all the files which will contain dates; edit the dates
             
-    #END
-    ####################################################################################################################        
-     
+            
+            directory = 'NASDAQ/NASDAQ_'+ str(year)  #this does not change with exchange
+            
+            sd = []
+            for files in os.walk(directory):
+                for filename in files:
+                    sd.append(filename)
+            
+            df = pd.DataFrame.from_dict(sd)
+            sd = (df.loc[2,:])
+            for s_d in sd:
+                pass
+            sd = s_d
+            tradingdaysofyear = []
+            for items in sd:
+                newitem =  int( (items[7:15]))
+                tradingdaysofyear.append(newitem)
+                
+            #END
+            ####################################################################################################################
+            skipexchange = 1
+        
+        
+        ####################################################################################################################
+        #START
+        #Read the NASDAQ/NYSE file for said day and create the primary company list of securities
+        day_one_of_year = (tradingdaysofyear[0])
+        exchanges = [current_exchange]
+        for i in exchanges:
+            address = i+'/'+i+'_'+str(year)+'/'+ i +'_' + str(day_one_of_year) + '.csv'
+            data = pd.read_csv(address, sep=',', header=None)
+        
+        primary_company_list = data
+        for i in primary_company_list.index:
+            if i > 0:
+                primary_company_list.loc[i,1] = 0
+                primary_company_list.loc[i,2] = 0
+                primary_company_list.loc[i,3] = 0
+                primary_company_list.loc[i,4] = 0
+                primary_company_list.loc[i,5] = 0
+                primary_company_list.loc[i,6] = 0
+                
+        #END
+        ####################################################################################################################        
+         
+        
+        ####################################################################################################################
+        #START
+        #Loop through the year and create dataframes with securities in order        
+        
+        #create temporary trading days list
+        tradingdaysofyear_sub = []
+        for i in range(0,calv_vol_days):###########################################     CHANGE_LOOKAT
+            tradingdaysofyear_sub.append(tradingdaysofyear[i])
+        
+        
+        temp_df =  primary_company_list  
+        a_2008_dataframe_collection = {}
+        
+        a_2008_dataframe_collection = {}
+        a_2008_dataframe_collection_x = {}
+        for i in range(0,len(tradingdaysofyear_sub)):
+            #open that day's file in folder; loop through primary company list and find corresponding company; assign to dataframe collection
+            address = current_exchange+'/'+current_exchange+'_'+str(year)+'/'+ current_exchange +'_' + str(tradingdaysofyear_sub[i]) + '.csv'
+            data = pd.read_csv(address, sep=',', header=None)     
+            data_x = pd.read_csv(address, sep=',', header=None)
+            a_2008_dataframe_collection_x[i] = data_x
+            a_2008_dataframe_collection[i] = data
+            
+        for i in range(0,calv_vol_days):    ###########################################     CHANGE_LOOKAT
+            for m in a_2008_dataframe_collection[i].index:
+                if m > 0:
+                    a_2008_dataframe_collection[i].loc[m,0] = ""
+                    a_2008_dataframe_collection[i].loc[m,1] = ""
+                    a_2008_dataframe_collection[i].loc[m,2] = ""
+                    a_2008_dataframe_collection[i].loc[m,3] = ""
+                    a_2008_dataframe_collection[i].loc[m,4] = ""
+                    a_2008_dataframe_collection[i].loc[m,5] = ""
+                    a_2008_dataframe_collection[i].loc[m,6] = ""
+            for n in primary_company_list.index:
+                if n > 0:
+                    a_2008_dataframe_collection[i].loc[n,0] = primary_company_list.loc[n,0]
+                    a_2008_dataframe_collection[i].loc[n,1] = a_2008_dataframe_collection_x[i].loc[1,1]
+               # a_2008_dataframe_collection[i] = a_2008_dataframe_collection[i].drop(a_2008_dataframe_collection[i].index[6])
+            for j  in a_2008_dataframe_collection[i].index:
+                for k in a_2008_dataframe_collection_x[i].index:
+                    if a_2008_dataframe_collection_x[i].loc[k,0] == a_2008_dataframe_collection[i].loc[j,0]:
+                        if j >0:
+                            a_2008_dataframe_collection[i].loc[j,0] = a_2008_dataframe_collection_x[i].loc[k,0]
+                            a_2008_dataframe_collection[i].loc[j,1] = a_2008_dataframe_collection_x[i].loc[k,1]
+                            a_2008_dataframe_collection[i].loc[j,2] = float(a_2008_dataframe_collection_x[i].loc[k,2])
+                            a_2008_dataframe_collection[i].loc[j,3] = float(a_2008_dataframe_collection_x[i].loc[k,3])
+                            a_2008_dataframe_collection[i].loc[j,4] = float(a_2008_dataframe_collection_x[i].loc[k,4])
+                            a_2008_dataframe_collection[i].loc[j,5] = float(a_2008_dataframe_collection_x[i].loc[k,5])
+                            a_2008_dataframe_collection[i].loc[j,6] = float(a_2008_dataframe_collection_x[i].loc[k,6])
+            a_2008_dataframe_collection[i] = a_2008_dataframe_collection[i].drop(a_2008_dataframe_collection[i].index[0])
+        #END
+        ####################################################################################################################
     
+            
     ####################################################################################################################
-    #START
-    #Loop through the year and create dataframes with securities in order        
+    #START 
+    #Multiply close price by volume for each day; put that in a matrix
     
-    #create temporary trading days list
-    tradingdaysofyear_sub = []
-    for i in range(0,2):###########################################     CHANGE
-        tradingdaysofyear_sub.append(tradingdaysofyear[i])
+    [mrows, ncolumns] = a_2008_dataframe_collection[0].shape
+    ProductArray = np.zeros(shape=(mrows,25))
+    
+    for i in a_2008_dataframe_collection:
+        sc = np.transpose(np.matrix (a_2008_dataframe_collection[i].loc[:,5]))
+        sd = np.transpose(np.matrix (a_2008_dataframe_collection[i].loc[:,6]))
+        if i > 0:
+            [mrows2, ncolumns2] = a_2008_dataframe_collection[i].shape
+            if mrows2 > mrows: #if new matrix is longer, drop however number of rows
+                reduce_rows = mrows2
+                for i2 in range(1, mrows2-mrows+1):
+                    sc =np.delete(sc, reduce_rows-1, 0)
+                    sd =np.delete(sd, reduce_rows-1, 0)
+                    reduce_rows -= 1
+        scsd = np.product([sc,sd],axis=0)
+        ProductArray[:,i] = scsd[:,0]
     
     
-    temp_df =  primary_company_list  
-    a_2008_dataframe_collection = {}
-    
-    a_2008_dataframe_collection = {}
-    a_2008_dataframe_collection_x = {}
-    for i in range(0,len(tradingdaysofyear_sub)):
-        #open that day's file in folder; loop through primary company list and find corresponding company; assign to dataframe collection
-        address = 'NASDAQ'+'/'+'NASDAQ'+'_'+str(year)+'/'+ 'NASDAQ' +'_' + str(tradingdaysofyear_sub[i]) + '.csv'
-        data = pd.read_csv(address, sep=',', header=None)     
-        data_x = pd.read_csv(address, sep=',', header=None)
-        a_2008_dataframe_collection_x[i] = data_x
-        a_2008_dataframe_collection[i] = data
+    ProductArraySum = ProductArray[:,0] + ProductArray[:,1]
+    #loop through ProductArraySum and find the top 250-275.
+    #print (np.size(ProductArraySum))
+    #print ((ProductArraySum[0]))
+    SecuritiesNumber = 0
+    Limiter = 1e7
+    Limiterx = 1e5
+    while SecuritiesNumber < 250 or SecuritiesNumber >275:
+        for i in range(0,np.size(ProductArraySum)):
+            if ProductArraySum[i] >= Limiter:
+                SecuritiesNumber += 1
         
-    for i in range(0,2):    ###################################     CHANGE
-        for m in a_2008_dataframe_collection[i].index:
-            if m > 0:
-                a_2008_dataframe_collection[i].loc[m,0] = ""
-                a_2008_dataframe_collection[i].loc[m,1] = ""
-                a_2008_dataframe_collection[i].loc[m,2] = ""
-                a_2008_dataframe_collection[i].loc[m,3] = ""
-                a_2008_dataframe_collection[i].loc[m,4] = ""
-                a_2008_dataframe_collection[i].loc[m,5] = ""
-                a_2008_dataframe_collection[i].loc[m,6] = ""
-        for n in primary_company_list.index:
-            if n > 0:
-                a_2008_dataframe_collection[i].loc[n,0] = primary_company_list.loc[n,0]
-                a_2008_dataframe_collection[i].loc[n,1] = a_2008_dataframe_collection_x[i].loc[1,1]
-           # a_2008_dataframe_collection[i] = a_2008_dataframe_collection[i].drop(a_2008_dataframe_collection[i].index[6])
-        for j  in a_2008_dataframe_collection[i].index:
-            for k in a_2008_dataframe_collection_x[i].index:
-                if a_2008_dataframe_collection_x[i].loc[k,0] == a_2008_dataframe_collection[i].loc[j,0]:
-                    if j >0:
-                        a_2008_dataframe_collection[i].loc[j,0] = a_2008_dataframe_collection_x[i].loc[k,0]
-                        a_2008_dataframe_collection[i].loc[j,1] = a_2008_dataframe_collection_x[i].loc[k,1]
-                        a_2008_dataframe_collection[i].loc[j,2] = float(a_2008_dataframe_collection_x[i].loc[k,2])
-                        a_2008_dataframe_collection[i].loc[j,3] = float(a_2008_dataframe_collection_x[i].loc[k,3])
-                        a_2008_dataframe_collection[i].loc[j,4] = float(a_2008_dataframe_collection_x[i].loc[k,4])
-                        a_2008_dataframe_collection[i].loc[j,5] = float(a_2008_dataframe_collection_x[i].loc[k,5])
-                        a_2008_dataframe_collection[i].loc[j,6] = float(a_2008_dataframe_collection_x[i].loc[k,6])
-        a_2008_dataframe_collection[i] = a_2008_dataframe_collection[i].drop(a_2008_dataframe_collection[i].index[0])
+        
+        if SecuritiesNumber > 300:
+            Limiter = Limiter + Limiterx
+            SecuritiesNumber = 0
+        elif SecuritiesNumber < 250:
+            Limiter = Limiter - Limiterx
+            SecuritiesNumber = 0
+            
+    print ("Number of securities is: " + str(SecuritiesNumber) + " with Limiter of " + str(Limiter))
+    
+    #Find the positions of your top 250-275    
+    ii = []
+    for i in[i for i,x in enumerate(ProductArraySum) if x >= Limiter]:
+        ij = int(i)
+        ii.append(ij)
+    
+    #make a list of securities out of the position's list 
+    #Make same list as above but with volume value   
+    SecurityList_250 = []
+    SecurityList_250_volume = []
+    SecurityList_250_exchange = []
+    for i in ii:
+        SecurityList_250.append(a_2008_dataframe_collection[0].loc[i+1,0])  
+        SecurityList_250_volume.append(ProductArraySum[i]) 
+        SecurityList_250_exchange.append(current_exchange)
+    
     #END
-    ####################################################################################################################        
-####################################################################################################################
-#START 
-#Multiply close price by volume for each day; put that in a matrix
-
-[mrows, ncolumns] = a_2008_dataframe_collection[0].shape
-ProductArray = np.zeros(shape=(mrows,25))
-
-for i in a_2008_dataframe_collection:
-    sc = np.transpose(np.matrix (a_2008_dataframe_collection[i].loc[:,5]))
-    sd = np.transpose(np.matrix (a_2008_dataframe_collection[i].loc[:,6]))
-    if i > 0:
-        [mrows2, ncolumns2] = a_2008_dataframe_collection[i].shape
-        if mrows2 > mrows: #if new matrix is longer, drop however number of rows
-            reduce_rows = mrows2
-            for i2 in range(1, mrows2-mrows+1):
-                sc =np.delete(sc, reduce_rows-1, 0)
-                sd =np.delete(sd, reduce_rows-1, 0)
-                reduce_rows -= 1
-    scsd = np.product([sc,sd],axis=0)
-    ProductArray[:,i] = scsd[:,0]
-
-
-ProductArraySum = ProductArray[:,0] + ProductArray[:,1]
-#loop through ProductArraySum and find the top 250-275.
-#print (np.size(ProductArraySum))
-#print ((ProductArraySum[0]))
-SecuritiesNumber = 0
-Limiter = 1e7
-Limiterx = 1e5
-while SecuritiesNumber < 250 or SecuritiesNumber >275:
-    for i in range(0,np.size(ProductArraySum)):
-        if ProductArraySum[i] >= Limiter:
-            SecuritiesNumber += 1
-    
-    
-    if SecuritiesNumber > 300:
-        Limiter = Limiter + Limiterx
-        SecuritiesNumber = 0
-    elif SecuritiesNumber < 250:
-        Limiter = Limiter - Limiterx
-        SecuritiesNumber = 0
-        
-print ("Number of securities is: " + str(SecuritiesNumber) + " with Limiter of " + str(Limiter))
-
-#Find the positions of your top 250-275    
-ii = []
-for i in[i for i,x in enumerate(ProductArraySum) if x >= Limiter]:
-    ij = int(i)
-    ii.append(ij)
-
-#make a list of securities out of the position's list 
-#Make same list as above but with volume value   
-SecurityList_250 = []
-SecurityList_250_volume = []
-SecurityList_250_exchange = []
-for i in ii:
-    SecurityList_250.append(a_2008_dataframe_collection[0].loc[i+1,0])  
-    SecurityList_250_volume.append(ProductArraySum[i]) 
-    SecurityList_250_exchange.append("NASDAQ")
-
-#END
-####################################################################################################################  
+    ####################################################################################################################  
 
 
 
@@ -198,28 +204,48 @@ for i in ii:
 #Open the folders and only pull data for those securities till Year's end
 #Merge NYSE and NASDAQ
 
-
-TradingTableIndex = []
-for i in range(1, SecuritiesNumber+1):
-    TradingTableIndex.append(i)
-
-
-TradingTable =  pd.DataFrame(index=TradingTableIndex,columns=tradingdaysofyear)
-TradingTable['SECURITIES'] = SecurityList_250   
-TradingTable['SECVOLUME'] = SecurityList_250_volume
-TradingTable['SECEXCHANGE'] = SecurityList_250_exchange
-
-TradingTableDayList = [20110103,20110104]
-for kk in TradingTableDayList:
-    for i in exchanges:
-            address = i+'/'+i+'_'+str(year)+'/'+ i +'_' + str(kk) + '.csv'
-            data = pd.read_csv(address, sep=',', header=None)
-    
-    for iik in TradingTable.index:
-        for jj in data.index:
-            if TradingTable.loc[iik,'SECURITIES'] == data.loc[jj,0]:
-                TradingTable.loc[iik,kk] = data.loc[jj,2]
-
+    if current_exchange == 'NYSE':
+        TradingTableIndex = []
+        for i in range(1, SecuritiesNumber+1):
+            TradingTableIndex.append(i)
+        
+        
+        TradingTable_NYSE =  pd.DataFrame(index=TradingTableIndex,columns=tradingdaysofyear)
+        TradingTable_NYSE['SECURITIES'] = SecurityList_250   
+        TradingTable_NYSE['SECVOLUME'] = SecurityList_250_volume
+        TradingTable_NYSE['SECEXCHANGE'] = SecurityList_250_exchange
+        
+        TradingTableDayList = [20110103,20110104]  ###########################################     CHANGE_LOOKAT
+        for kk in TradingTableDayList:
+            for i in exchanges:
+                    address = i+'/'+i+'_'+str(year)+'/'+ i +'_' + str(kk) + '.csv'
+                    data = pd.read_csv(address, sep=',', header=None)
+            
+            for iik in TradingTable_NYSE.index:
+                for jj in data.index:
+                    if TradingTable_NYSE.loc[iik,'SECURITIES'] == data.loc[jj,0]:
+                        TradingTable_NYSE.loc[iik,kk] = data.loc[jj,2]
+    elif current_exchange == 'NASDAQ':
+        TradingTableIndex = []
+        for i in range(1, SecuritiesNumber+1):
+            TradingTableIndex.append(i)
+        
+        
+        TradingTable_NASDAQ =  pd.DataFrame(index=TradingTableIndex,columns=tradingdaysofyear)
+        TradingTable_NASDAQ['SECURITIES'] = SecurityList_250   
+        TradingTable_NASDAQ['SECVOLUME'] = SecurityList_250_volume
+        TradingTable_NASDAQ['SECEXCHANGE'] = SecurityList_250_exchange
+        
+        TradingTableDayList = [20110103,20110104]  ###########################################     CHANGE_LOOKAT
+        for kk in TradingTableDayList:
+            for i in exchanges:
+                    address = i+'/'+i+'_'+str(year)+'/'+ i +'_' + str(kk) + '.csv'
+                    data = pd.read_csv(address, sep=',', header=None)
+            
+            for iik in TradingTable_NASDAQ.index:
+                for jj in data.index:
+                    if TradingTable_NASDAQ.loc[iik,'SECURITIES'] == data.loc[jj,0]:
+                        TradingTable_NASDAQ.loc[iik,kk] = data.loc[jj,2]
 
 
 
@@ -235,66 +261,11 @@ print("--- %s seconds ---" % (time.time() - start_time))
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #sa = (np.array([[1,2,3],[4,5,6]]))
 #sb = (np.matrix([[7,8,9],[10,11,12]]))
 
 #findx = ProductArray[1,0]
 #alistx = list(ProductArray[:,0])
 #print (alistx.index(findx))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
